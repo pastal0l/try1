@@ -24,7 +24,7 @@ class BackgroundPanel extends JPanel {
 }
 
 
-public class Try {
+public class App {
    static JFrame gameSelectionFrame;
    private static JFrame gameWindowFrame;
    private static int playerScore = 0;
@@ -41,7 +41,7 @@ public class Try {
        gameSelectionFrame = new JFrame("Game Selection");
        gameSelectionFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        gameSelectionFrame.setSize(600, 400);
-       BackgroundPanel backgroundPanel = new BackgroundPanel("mainbackground.jpg");
+       BackgroundPanel backgroundPanel = new BackgroundPanel("mainbackground.jpeg");
        backgroundPanel.setLayout(new GridBagLayout());
        gameSelectionFrame.setContentPane(backgroundPanel);
        JLabel titleLabel = new JLabel("What games will we play today?", SwingConstants.CENTER);
@@ -57,6 +57,7 @@ public class Try {
        gameButtonsPanel.add(createGameButton("Rock Paper Scissors", "rock_paper_scissors_icon.png"));
        gameButtonsPanel.add(createGameButton("Who wants to be a millionaire!", "millionaire_icon.png"));
        gameButtonsPanel.add(createGameButton("Don't copy me!", "dont_copy_me_icon.png"));
+       gameButtonsPanel.add(createGameButton("Tic-Tac-Toe", "Tic_tac_toe.png"));
        gbc.gridy = 1;
        gbc.insets = new Insets(0, 0, 0, 0);
        backgroundPanel.add(gameButtonsPanel, gbc);
@@ -157,7 +158,10 @@ public class Try {
                 createAndShowRockPaperScissorsGame();
             } else if (currentGame.equals("Who wants to be a millionaire!")) {
                 createAndShowWhoWantsToBeAMillionaire();
-            } else {
+            } else if (currentGame.equals("Tic-Tac-Toe")){
+                createAndShowTicTacToe();
+            }
+             else {
                 createAndShowGuessingGame();
             }
         }
@@ -172,13 +176,15 @@ public class Try {
 private static String getBackgroundImageForGame(String gameTitle) {
     switch (gameTitle) {
         case "Rock Paper Scissors":
-            return "rps_background.jpg";
+            return "rps_background.jpeg";
         case "Who wants to be a millionaire!":
-            return "capsule_616x353.jpg";
+            return "capsule_616x353.jpeg";
         case "Don't copy me!":
-            return "guessgame.jpg";
+            return "guessgame2.jpeg";
+        case "Tic-Tac-Toe":
+            return "tic.jpeg";
         default:
-            return "default_background.jpg";
+            return "default_background.jpeg";
     }
 }
 
@@ -188,9 +194,18 @@ private static String getBackgroundImageForGame(String gameTitle) {
        gameWindowFrame = new JFrame("Rock Paper Scissors");
        gameWindowFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        gameWindowFrame.setSize(600, 400);
-       BackgroundPanel backgroundPanel = new BackgroundPanel("rock_paper_scissors_background.jpg");
+       BackgroundPanel backgroundPanel = new BackgroundPanel("rock_paper_scissors_background.jpeg");
        backgroundPanel.setLayout(new BorderLayout());
        gameWindowFrame.setContentPane(backgroundPanel);
+       JLabel rulesLabel = new JLabel("Win against a computer 3 times in a row. Good luck!");
+       rulesLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+       JPanel rulesPanel = new JPanel(new BorderLayout());
+       rulesPanel.add(rulesLabel, BorderLayout.CENTER);
+       rulesLabel.setForeground(Color.BLACK);
+
+       JOptionPane.showMessageDialog(rulesPanel, "Win against a computer 3 times in a row. Good luck!", computerChoice, JOptionPane.PLAIN_MESSAGE, new ImageIcon("rock_paper_scissors_icon.png"));
+
 
        
        JLabel titleLabel = new JLabel("Choose an option", SwingConstants.CENTER);
@@ -230,9 +245,9 @@ private static String getBackgroundImageForGame(String gameTitle) {
        int computerChoiceIndex = random.nextInt(3);
        String[] choices = {"Rock", "Paper", "Scissors"};
        computerChoice = choices[computerChoiceIndex];
- // Show animation of hands playing
+    // Show animation of hands playing
        showAnimation(playerChoice, computerChoice);
- // Determine the winner
+    // Determine the winner
        String result = determineWinner(playerChoice, computerChoice);
        if (result.equals("You win!")) {
            playerScore++;
@@ -249,14 +264,14 @@ private static String getBackgroundImageForGame(String gameTitle) {
            JOptionPane.showMessageDialog(gameWindowFrame, message, "It's a tie!", JOptionPane.PLAIN_MESSAGE);
        }
        if (playerScore == 3) {
+           gameWindowFrame.dispose();
+           JOptionPane.showMessageDialog(gameSelectionFrame, "Congratulations! You won against a computer!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+           gameSelectionFrame.setVisible(true);
+       } else if (computerScore == 3) {
         gameWindowFrame.dispose();
-        JOptionPane.showMessageDialog(gameSelectionFrame, "Congratulations You Won Against A Computer", "You Win!", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(gameSelectionFrame, "You Lose! Try again next time...", "Game Over", JOptionPane.ERROR_MESSAGE);
         gameSelectionFrame.setVisible(true);
-    } else if (computerScore == 3) {
-        gameWindowFrame.dispose();
-        JOptionPane.showMessageDialog(gameSelectionFrame, "You lose! Try again next time...", "You Lose!", JOptionPane.ERROR_MESSAGE);
-        gameSelectionFrame.setVisible(true);
-    }
+       }
        playerChoice = null;
    }
 
@@ -375,7 +390,7 @@ g2d.fillRect(x, y, 60, 80);
        resultFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        resultFrame.setSize(400, 200);
        resultFrame.setLayout(new BorderLayout());
-       BackgroundPanel backgroundPanel = new BackgroundPanel("mainbackground.jpg");
+       BackgroundPanel backgroundPanel = new BackgroundPanel("mainbackground.jpeg");
        backgroundPanel.setLayout(new BorderLayout());
        resultFrame.setContentPane(backgroundPanel);
        JLabel resultLabel = new JLabel(message, SwingConstants.CENTER);
@@ -433,10 +448,13 @@ g2d.fillRect(x, y, 60, 80);
     gameWindowFrame.dispose();
        MillionaireGame millionaireGame = new MillionaireGame(gameSelectionFrame);
        millionaireGame.setVisible(true);
-       
    }
 
-
+   private static void createAndShowTicTacToe(){
+    gameWindowFrame.dispose();
+    TicTacToe tictactoeGame = new TicTacToe(gameSelectionFrame);
+    tictactoeGame.setVisible(true);
+   }
 
 
    private static void createAndShowGuessingGame() {
@@ -472,6 +490,12 @@ class MillionaireGame extends JFrame {
     private final int maxHintUses = 2;
     private String[] hints;  // Array to hold hints for each question
 
+    private Timer timer;
+    private int timeLeft = 20; 
+
+
+
+
     private String[][] allQuestionSets = {
         {
             "1. What video game characters specialize in plumbing?",
@@ -479,7 +503,7 @@ class MillionaireGame extends JFrame {
             "3. What year was Thomas The Tank Engine created?",
             "4. Who is the creator of Pokémon?",
             "5. What year was Fortnite created?",
-            "6. You made a mistake in the docs",
+            "6. How much does a Lamborghini aventador cost?",
             "7. What car is the fastest car in the world? (as of 2023)",
             "8. Where traditionally do birds fly in winter?",
             "9. Which year was python language developed?",
@@ -610,9 +634,11 @@ class MillionaireGame extends JFrame {
     private String[][] allHints = {
         {"Red and Green", "Toy Story", "Inbetween the years that World-War2 happened", "S", "Trump's inauguration", "50x8353", "made in Sweden", "antarctica", "20", "Oceania", "Enter", "Quatre vingt treize"},
         {"Green", "T", "23", "8", "21", "abc", "U3O8", "Panda", "Greek name", "Car+l", "Apple", "11 0s"},
-        {"O", "5", "1", "2", "3", "4", "6", "7", "8", "9", "11", "12"}
+        {"red and yellow", "are planes bird?", "Nice car!", "Gill", "How many hours is there in a day", "Somehow the answer reminds me of this city....", "2 times 3", "This country was in a very cold war", "Leprechauns", "eh? why are there 11 days off in the calendar?", "Hate the ones dads make", "got scores from the sky!"}
     };
 
+
+    
     public MillionaireGame(JFrame gameSelectionFrame) {
         Random random = new Random();
         int selectedSet = random.nextInt(allQuestionSets.length);
@@ -623,6 +649,7 @@ class MillionaireGame extends JFrame {
         this.gameSelectionFrame = gameSelectionFrame;
         createUI();
         setTitle("Who Wants to Be a Millionaire?");
+    
         JLabel rulesLabel = new JLabel("<html><body style='width: 500px; text-align: left;'>Rules of the Game:<br><br>" +
                 "The Who Wants to Be a Millionaire questions are structured according to five different Levels with each level increasing in difficulty. Each level contains three questions.<br>" +
                 "Questions that are grouped into the same level will all be of similar difficulty.<br><br>" +
@@ -638,33 +665,39 @@ class MillionaireGame extends JFrame {
                 "Question 10 $500,000<br><br>" +
                 "Question 11 $750,000<br>" +
                 "Question 12 $1,000,000<br><br>" +
-                "50/50 – removes two wrong answers from the multiple-choice selection, leaving the contestant with only one correct and one incorrect option. This means they have a 50/50 chance.<br><br>" +
-                "Ask for a hint – Contestants can ask for a hint to the correct answer that they can use at any point during the game. They can use this option twice.<br><br>" +
+                "50/50 : removes two wrong answers from the multiple-choice selection, leaving the contestant with only one correct and one incorrect option. This means they have a 50/50 chance.<br><br>" +
+                "Ask for a hint : Contestants can ask for a hint to the correct answer that they can use at any point during the game. They can use this option twice.<br><br>" +
                 "</body></html>");
-
+    
         rulesLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
+    
         JPanel rulesPanel = new JPanel(new BorderLayout());
         rulesPanel.add(rulesLabel, BorderLayout.CENTER);
         rulesLabel.setForeground(Color.BLACK);
-
-        JOptionPane.showMessageDialog(this, rulesPanel, "Rules of the Game", JOptionPane.PLAIN_MESSAGE, new ImageIcon("capsule_616x353.jpg"));
-
+    
+        JOptionPane.showMessageDialog(this, rulesPanel, "Rules of the Game", JOptionPane.PLAIN_MESSAGE, new ImageIcon("capsule_616x353.jpeg"));
+    
+        setQuestion();
+    
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 450);
+        setSize(750, 550);
         setLocationRelativeTo(null);
         setResizable(false);
+    
+        startTimer(); // Start the timer after the rule window is closed
     }
-
+    
+    
    
     private void createUI() {
-        BackgroundPanel backgroundPanel = new BackgroundPanel("maxresdefault.jpg");
+        startTimer();
+        BackgroundPanel backgroundPanel = new BackgroundPanel("maxresdefault.jpeg");
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
         questionLabel = new JLabel();
         questionLabel.setForeground(new Color(169, 169, 169)); // Ensure the text is visible on the background
-        questionLabel.setFont(new Font("Serif", Font.BOLD, 21)); // Adjust font size and style
+        questionLabel.setFont(new Font("Serif", Font.BOLD, 18)); // Adjust font size and style
         backgroundPanel.add(questionLabel, BorderLayout.NORTH);
 
         JPanel optionsPanel = new JPanel();
@@ -674,8 +707,8 @@ class MillionaireGame extends JFrame {
         option2 = new JButton();
         option3 = new JButton();
         option4 = new JButton();
-        Color purple = new Color(128, 0, 128);
-        Color grayText = new Color(169, 169, 169);
+        Color purple = new Color(186, 85, 211); // Light Purple
+        Color grayText = new Color(255, 255, 255); // White color
         option1.setBackground(purple);
         option1.setForeground(grayText);
         option1.setOpaque(true);
@@ -721,8 +754,15 @@ class MillionaireGame extends JFrame {
         option3.addActionListener(e -> checkAnswer(option3.getText()));
         option4.addActionListener(e -> checkAnswer(option4.getText()));
     }
+ 
+
+
     private void setQuestion() {
-        questionLabel.setText(questionSet[currentQuestion]);
+        if (timer != null) {
+            timer.stop();
+        }
+        timeLeft = 20;
+        updateQuestionLabel();
         option1.setText(optionSet[currentQuestion][0]);
         option2.setText(optionSet[currentQuestion][1]);
         option3.setText(optionSet[currentQuestion][2]);
@@ -730,6 +770,35 @@ class MillionaireGame extends JFrame {
         correctAnswer = answerSet[currentQuestion];
         enableOptions();
     }
+
+
+private void startTimer() {
+         timer = new Timer(1000, e -> {
+                timeLeft--;
+                updateQuestionLabel(); // Update label to show remaining time
+                if (timeLeft <= 0) {
+                    timer.stop();
+                    handleTimeOut(); // Handle time out logic
+                }
+            });
+            timer.start();
+        }
+
+
+      private void updateQuestionLabel() {
+        questionLabel.setText(questionSet[currentQuestion] + " (Time left: " + timeLeft + "s)");
+    }
+
+    private void handleTimeOut() {
+        JOptionPane.showMessageDialog(this, "Time's up! You didn't choose an answer in time. You only got:$ "+ score, "Time's Up", JOptionPane.WARNING_MESSAGE);
+        this.dispose();
+        gameSelectionFrame.setVisible(true);
+        // You can add additional code here to handle what happens when the time runs out, such as ending the game or moving to the next question
+    }
+
+
+
+
 
     private void enableOptions() {
         option1.setEnabled(true);
@@ -807,6 +876,9 @@ class MillionaireGame extends JFrame {
     }
 
     private void checkAnswer(String selectedOption) {
+        if (timer != null) {
+            timer.stop();
+        }
         if (selectedOption.equals(correctAnswer)) {
             score += prizeAmounts[currentQuestion];
             currentQuestion++;
@@ -864,7 +936,10 @@ class GuessingGame extends JFrame implements ActionListener {
        "Think of a dessert:",
        "Think of a fictional monster:",
        "Think of an avenger:",
-       "Think of a shoe brand:"
+       "Think of a shoe brand:",
+       "Think of a book genre:",
+       "Think of a musical instrument:",
+       "Think of a famous mountain:"
    };
 
 
@@ -884,11 +959,16 @@ class GuessingGame extends JFrame implements ActionListener {
        {"Ice cream", "Pudding", "Brownie", "Candy"},
        {"Vampires", "Zombies", "Mummies", "Frankenstein"},
        {"Thor", "Iron Man", "Captain America", "Spiderman"},
-       {"Nike", "Adidas", "Puma", "Crocs"}
+       {"Nike", "Adidas", "Puma", "Crocs"},
+       {"Everest","Kilimanjaro","Fuji","Matterhorn"},
+       {"Piano","Guitar","Violin","Flute"},
+       {"Mystery","Fantasy","Romance","Science fiction"}
    };
 
 
-
+   private JLabel timerLabel;
+   private Timer gameTimer;
+   private int timeLeft;
 
    @SuppressWarnings("static-access")
 
@@ -897,11 +977,21 @@ class GuessingGame extends JFrame implements ActionListener {
 public GuessingGame(JFrame gameSelectionFrame) {
        super("Guessing Game");
        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-       setSize(600, 200);
+       setSize(600, 350);
        setLayout(new BorderLayout());
        setLocationRelativeTo(null);
 
-       BackgroundPanel backgroundPanel = new BackgroundPanel("guessgame.jpg");
+       JLabel rulesLabel = new JLabel("Rules");
+       rulesLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+       JPanel rulesPanel = new JPanel(new BorderLayout());
+       rulesPanel.add(rulesLabel, BorderLayout.CENTER);
+       rulesLabel.setForeground(Color.BLACK);
+
+       JOptionPane.showMessageDialog(rulesPanel, "DON'T think like a computer. Win 5 times!", getTitle(), JOptionPane.PLAIN_MESSAGE, new ImageIcon("dont_copy_me_icon.png"));
+
+
+       BackgroundPanel backgroundPanel = new BackgroundPanel("guessgame.jpeg");
        backgroundPanel.setLayout(new BorderLayout());
        setContentPane(backgroundPanel);
 
@@ -915,13 +1005,13 @@ public GuessingGame(JFrame gameSelectionFrame) {
        buttons = new JButton[4];
 
        Color[] buttonColors = {
-        new Color(65,105,225), 
-        new Color(65,105,225),  
-        new Color(65,105,225),  // Royal Blue
-        new Color(65,105,225),  
+        new Color(65, 105, 225), 
+        new Color (65, 105, 225), 
+        new Color(65, 105, 225), // dark blue
+        new Color(65, 105, 225) 
     };
-    Color textColor = new Color(255, 255, 153);
 
+    Color textColor = new Color(255, 255, 153);
 
        for (int i = 0; i < buttons.length; i++) {
             buttons[i] = new JButton(String.valueOf((char) (i + 'A')));
@@ -936,10 +1026,32 @@ public GuessingGame(JFrame gameSelectionFrame) {
 
 
        add(buttonPanel, BorderLayout.CENTER);
+       timerLabel = new JLabel();
+       timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+       timerLabel.setFont(new Font("Serif", Font.BOLD, 18));
+       timerLabel.setForeground(Color.RED);
+       backgroundPanel.add(timerLabel, BorderLayout.SOUTH);
+
        this.gameSelectionFrame = gameSelectionFrame;
        roundCount = 0;
-       newRound();
-   }
+       gameTimer = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            timeLeft--;
+            timerLabel.setText("Time left: " + timeLeft + " seconds");
+           
+
+            if (timeLeft <= 0) {
+                JOptionPane.showMessageDialog(GuessingGame.this, "Time's up! You lose!", "Game Over", JOptionPane.ERROR_MESSAGE);
+                gameTimer.stop();
+                dispose();
+                gameSelectionFrame.setVisible(true);
+            }
+        }
+    });
+
+    newRound();
+}
 
 
 
@@ -948,9 +1060,10 @@ public GuessingGame(JFrame gameSelectionFrame) {
    private void newRound() {
        if (roundCount >= 5) {
            JOptionPane.showMessageDialog(this, "Congratulations! You won!", "You Win!", JOptionPane.INFORMATION_MESSAGE);
-           System.exit(0);
-           return;
+           this.dispose();
+           gameSelectionFrame.setVisible(true);
        }
+    
  
        int promptIndex = new Random().nextInt(prompts.length);
        promptLabel.setText(prompts[promptIndex]);
@@ -961,15 +1074,19 @@ public GuessingGame(JFrame gameSelectionFrame) {
        for (int i = 0; i < buttons.length; i++) {
            buttons[i].setText(shuffledOptions.get(i));
        }
- 
-       roundCount++;
-   }
+    // Start the timer for 10 seconds
+    timeLeft = 10;
+    timerLabel.setText("Time left: " + timeLeft + " seconds");
+    gameTimer.start();
 
+    roundCount++;
+}
 
 
 
    @Override
    public void actionPerformed(ActionEvent e) {
+    gameTimer.stop();
        JButton button = (JButton) e.getSource();
        String userChoice = button.getText();
        String computerChoice = buttons[new Random().nextInt(buttons.length)].getText();
@@ -983,9 +1100,164 @@ public GuessingGame(JFrame gameSelectionFrame) {
        }
    }
 
-
+   
 
    public static void main(String[] args) {
        SwingUtilities.invokeLater(() -> new GuessingGame(gameSelectionFrame).setVisible(true));
    }
+}
+
+
+
+
+class TicTacToe extends JFrame implements ActionListener { //evan
+    private static JFrame gameSelectionFrame;
+    private static final int ROWS = 3;
+    private static final int COLS = 3;
+    private static final int SIZE = 100;
+    private static final int GAP = 10;
+    private JButton[][] buttons;
+    private int[][] values;
+    private int currentPlayer;
+    
+
+    @SuppressWarnings("static-access")
+    public TicTacToe(JFrame gameSelectionFrame) {
+        
+        buttons = new JButton[ROWS][COLS];
+        values = new int[ROWS][COLS];
+        currentPlayer = 1;
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 500);
+        setLayout(new GridLayout(ROWS, COLS, GAP, GAP));
+        setLocationRelativeTo(null);
+
+        JLabel rulesLabel = new JLabel("Rules");
+        rulesLabel.setFont(new Font("Serif", Font.PLAIN, 14));
+ 
+        JPanel rulesPanel = new JPanel(new BorderLayout());
+        rulesPanel.add(rulesLabel, BorderLayout.CENTER);
+        rulesLabel.setForeground(Color.BLACK);
+ 
+        JOptionPane.showMessageDialog(rulesPanel, "<html>Grab a friend and PLAY!<br><br>X: Player 1   O: Player 2</html>", getTitle(), JOptionPane.PLAIN_MESSAGE, new ImageIcon("Tic-tac-toe.png"));
+
+     
+        BackgroundPanel backgroundPanel = new BackgroundPanel("tic.jpeg");
+        backgroundPanel.setLayout(new GridLayout(ROWS, COLS, GAP, GAP));
+        setContentPane(backgroundPanel);
+
+        JPanel gridPanel = new JPanel(new GridLayout(ROWS, COLS, GAP, GAP));
+        gridPanel.setOpaque(false); 
+
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                buttons[i][j] = new JButton();
+                buttons[i][j].setPreferredSize(new Dimension(SIZE, SIZE));
+                buttons[i][j].setFont(new Font("Arial", Font.BOLD, 30));
+                buttons[i][j].addActionListener(this);
+                add(buttons[i][j]);
+            }
+        }
+        this.gameSelectionFrame = gameSelectionFrame;
+        setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton button = (JButton) e.getSource();
+        int row = getRow(button);
+        int col = getCol(button);
+
+        if (values[row][col] == 0) {
+            values[row][col] = currentPlayer;
+            button.setText(currentPlayer == 1 ? "X" : "O");
+        }
+
+        if (checkWin(values, currentPlayer)) {
+            JOptionPane.showMessageDialog(this, "Player " + currentPlayer + " wins!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+            
+            this.dispose();
+            gameSelectionFrame.setVisible(true);
+        } else if (isFull(values)) {
+            JOptionPane.showMessageDialog(this, "It's a draw!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+            
+            this.dispose();
+            gameSelectionFrame.setVisible(true);
+        }
+        else {
+            currentPlayer = currentPlayer == 1 ? 2 : 1;
+        }
+    }
+
+    private int getRow(JButton button) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (buttons[i][j] == button) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private int getCol(JButton button) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (buttons[i][j] == button) {
+                    return j;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private boolean checkWin(int[][] values, int player) {
+        for (int i = 0; i < ROWS; i++) {
+            if (values[i][0] == player && values[i][1] == player && values[i][2] == player) {
+                return true;
+            }
+        }
+
+        for (int j = 0; j < COLS; j++) {
+            if (values[0][j] == player && values[1][j] == player && values[2][j] == player) {
+                return true;
+            }
+        }
+
+        if (values[0][0] == player && values[1][1] == player && values[2][2] == player) {
+            return true;
+        }
+
+        if (values[0][2] == player && values[1][1] == player && values[2][0] == player) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isFull(int[][] values) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (values[i][j] == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*private void resetGame() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                values[i][j] = 0;
+                buttons[i][j].setText("");
+            }
+        }
+        currentPlayer = 1;
+    }*/
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TicTacToe(gameSelectionFrame).setVisible(true));
+    }
 }
