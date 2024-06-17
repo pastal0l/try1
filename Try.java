@@ -24,7 +24,7 @@ class BackgroundPanel extends JPanel {
 }
 
 
-public class App {
+public class Try {
    static JFrame gameSelectionFrame;
    private static JFrame gameWindowFrame;
    private static int playerScore = 0;
